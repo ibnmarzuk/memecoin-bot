@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "FREN",
+      "hasCanvas": false,
+      "bodyTextLen": 2042,
+      "bodyTextHash": "7a3b329b397f55b5404f3a97e4853f3864adddfa331e2bc1f8bdea6d26c86c4a",
+      "bodyTextPrefix": "FREN DESK Live PAIDDOGE $0.000813 +548% PAIDLON $0.000226 +202% ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "FREN",
+      "hasCanvas": false,
+      "bodyTextLen": 1074,
+      "bodyTextHash": "7c5b1f9f6562f4256e5eab1a49b3800ad59bd47ffa31677e8685967dd93e0f38",
+      "bodyTextPrefix": "FREN PAIDDOGE $0.000813 +548% PAIDLON $0.000226 +202% FOMOPAD $2",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

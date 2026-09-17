@@ -1,0 +1,173 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
+
+  --color-background: #09090b;
+  --color-foreground: #f1f1f3;
+  --color-card: #111113;
+  --color-card-foreground: #f1f1f3;
+  --color-popover: #141416;
+  --color-popover-foreground: #f1f1f3;
+  --color-primary: #c5cdd6;
+  --color-primary-foreground: #09090b;
+  --color-secondary: #18181b;
+  --color-secondary-foreground: #f1f1f3;
+  --color-muted: #18181b;
+  --color-muted-foreground: #8c8c96;
+  --color-accent: #1c1c20;
+  --color-accent-foreground: #f1f1f3;
+  --color-destructive: #e07a7a;
+  --color-border: rgb(255 255 255 / 0.08);
+  --color-input: rgb(255 255 255 / 0.1);
+  --color-ring: #c5cdd6;
+  --color-up: #7dcaa5;
+  --color-down: #e07a7a;
+  --color-warn: #c4b08a;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-border: 0 0 0 1px rgb(255 255 255 / 0.08);
+  --shadow-border-hover: 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 28%, transparent);
+    color: var(--color-foreground);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+.desk-shell {
+  background-color: var(--color-background);
+  background-image: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.018),
+    transparent 28rem
+  );
+}
+
+.tape-track {
+  animation: tape-scroll 48s linear infinite;
+}
+
+@keyframes tape-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted-foreground) 0%,
+    var(--color-foreground) 50%,
+    var(--color-muted-foreground) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: shimmer-sweep 1.6s linear infinite;
+}
+
+@keyframes shimmer-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.enter-rise {
+  animation: enter-rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.14) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.14);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tape-track,
+  .shimmer-text,
+  .enter-rise {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+    color: var(--color-muted-foreground);
+    background: none;
+  }
+}

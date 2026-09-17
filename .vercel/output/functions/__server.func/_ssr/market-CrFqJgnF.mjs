@@ -1,7 +1,7 @@
 import { t as createServerFn } from "./ssr.mjs";
 import { t as createServerRpc } from "./createServerRpc-A6pJPYTF.mjs";
 import { a as looksLikeAddress } from "./format-DuQl3DE9.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/market-DmdjlHVD.js
+//#region node_modules/.nitro/vite/services/ssr/assets/market-CrFqJgnF.js
 var DESK_UNIVERSE = [
 	"doge-dogecoin",
 	"shib-shiba-inu",
@@ -248,7 +248,7 @@ async function loadRadar() {
 	const dexP = fetchDexRadar().catch(() => []);
 	const listedP = fetchListedRadar().catch(() => []);
 	const dex = await dexP;
-	const listedWait = dex.length >= 8 ? 2e3 : 8e3;
+	const listedWait = dex.length >= 8 ? 4500 : 8e3;
 	const coins = mergeRadar(dex, await Promise.race([listedP, new Promise((resolve) => setTimeout(() => resolve([]), listedWait))]));
 	const sources = [];
 	if (coins.some((c) => c.source === "dex")) sources.push("dex");

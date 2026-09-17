@@ -54,7 +54,7 @@ export function RadarPanel({
             [
               ["all", "Vol"],
               ["heat", "Heat"],
-              ["watch", "Desk"],
+              ["watch", "Pins"],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -90,7 +90,7 @@ export function RadarPanel({
           </div>
         ) : rows.length === 0 ? (
           <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-            {filter === "watch" ? "Nothing pinned yet." : "No coins on the tape."}
+            {filter === "watch" ? "Pin a coin from the tape." : "No coins on the tape."}
           </div>
         ) : (
           <ul className="space-y-1">

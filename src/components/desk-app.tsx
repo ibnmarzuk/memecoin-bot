@@ -22,7 +22,16 @@ function loadChat(): ChatMessage[] {
     const raw = localStorage.getItem(CHAT_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as ChatMessage[];
-    return Array.isArray(parsed) ? parsed.slice(-40) : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (m) =>
+          !m.error &&
+          !/^Desk error\b/.test(m.content) &&
+          m.content !== "The desk line dropped. Try again." &&
+          m.content !== "Scan failed. Try again.",
+      )
+      .slice(-40);
   } catch {
     return [];
   }
@@ -42,6 +51,7 @@ export function DeskApp() {
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<Coin[]>([]);
+  const [searching, setSearching] = useState(false);
   const [extra, setExtra] = useState<Coin[]>([]);
   const hydrated = useRef(new Set<string>());
   const [mounted, setMounted] = useState(false);
@@ -85,7 +95,10 @@ export function DeskApp() {
       },
     })
       .then((res) => {
-        if (!res.coin) return;
+        if (!res.coin) {
+          hydrated.current.delete(selectedId);
+          return;
+        }
         setExtra((prev) => {
           const rest = prev.filter((c) => c.id !== res.coin!.id);
           return [...rest, { ...coin, ...res.coin }];
@@ -100,8 +113,10 @@ export function DeskApp() {
     const q = query.trim();
     if (q.length < 2) {
       setHits([]);
+      setSearching(false);
       return;
     }
+    setSearching(true);
     const t = window.setTimeout(() => {
       searchMarket({ data: { q } })
         .then((res) => {
@@ -114,7 +129,8 @@ export function DeskApp() {
             });
           }
         })
-        .catch(() => setHits([]));
+        .catch(() => setHits([]))
+        .finally(() => setSearching(false));
     }, 350);
     return () => window.clearTimeout(t);
   }, [query]);
@@ -164,6 +180,11 @@ export function DeskApp() {
   async function send(text: string) {
     const trimmed = text.trim();
     if (!trimmed || pending) return;
+    const scanMatch = trimmed.match(/^\s*(?:scan|read)\s+\$?([A-Za-z0-9]{2,15})\s*[.!?]*$/i);
+    if (scanMatch?.[1]) {
+      await scanSymbol(scanMatch[1], trimmed);
+      return;
+    }
     const userMsg: ChatMessage = { id: uid(), role: "user", content: trimmed };
     setMessages((m) => [...m, userMsg]);
     setTab("desk");
@@ -175,6 +196,7 @@ export function DeskApp() {
           id: uid(),
           role: "assistant",
           content: res.ok ? res.text : res.error,
+          error: !res.ok,
         },
       ]);
     } catch {
@@ -184,18 +206,19 @@ export function DeskApp() {
           id: uid(),
           role: "assistant",
           content: "The desk line dropped. Try again.",
+          error: true,
         },
       ]);
     }
   }
 
-  async function scan() {
-    if (!selected || pending) return;
-    const coin = selected;
-    setMessages((m) => [
-      ...m,
-      { id: uid(), role: "user", content: `Scan ${coin.symbol}` },
-    ]);
+  async function runScan(coin: Coin, prompt: string) {
+    select(coin.id);
+    setExtra((prev) => {
+      if (prev.some((c) => c.id === coin.id)) return prev;
+      return [...prev, coin];
+    });
+    setMessages((m) => [...m, { id: uid(), role: "user", content: prompt }]);
     setTab("desk");
     try {
       const res = await scanMut.mutateAsync(coin);
@@ -206,13 +229,67 @@ export function DeskApp() {
           role: "assistant",
           content: res.ok ? res.text : res.error,
           scan: res.ok ? (res.scan ?? null) : null,
+          error: !res.ok,
         },
       ]);
     } catch {
       setMessages((m) => [
         ...m,
-        { id: uid(), role: "assistant", content: "Scan failed. Try again." },
+        { id: uid(), role: "assistant", content: "Scan failed. Try again.", error: true },
       ]);
+    }
+  }
+
+  async function scanSymbol(symbol: string, prompt: string) {
+    const sym = symbol.toUpperCase();
+    const matches = coins.filter((c) => c.symbol.toUpperCase() === sym);
+    let coin: Coin | null =
+      matches.find((c) => c.source === "listed") ?? matches[0] ?? null;
+    if (!coin) {
+      try {
+        const res = await searchMarket({ data: { q: symbol } });
+        const found = res.coins.filter((c) => c.symbol.toUpperCase() === sym);
+        coin =
+          found.find((c) => c.source === "listed") ?? found[0] ?? res.coins[0] ?? null;
+        if (coin) {
+          setExtra((prev) => {
+            const map = new Map(prev.map((c) => [c.id, c]));
+            map.set(coin!.id, coin!);
+            return [...map.values()];
+          });
+        }
+      } catch {
+        coin = null;
+      }
+    }
+    if (!coin) {
+      setMessages((m) => [
+        ...m,
+        { id: uid(), role: "user", content: prompt },
+        {
+          id: uid(),
+          role: "assistant",
+          content: `No tape on ${sym}. Search the ticker or paste a contract.`,
+          error: true,
+        },
+      ]);
+      setTab("desk");
+      return;
+    }
+    await runScan(coin, prompt);
+  }
+
+  async function scan() {
+    if (!selected || pending) return;
+    await runScan(selected, `Scan ${selected.symbol}`);
+  }
+
+  function clearChat() {
+    setMessages([]);
+    try {
+      localStorage.removeItem(CHAT_KEY);
+    } catch {
+      /* ignore */
     }
   }
 
@@ -277,6 +354,10 @@ export function DeskApp() {
                 </li>
               ))}
             </ul>
+          ) : query.trim().length >= 2 && !searching ? (
+            <div className="absolute z-30 mt-2 w-full rounded-xl bg-popover px-3 py-3 text-sm text-muted-foreground shadow-[var(--shadow-border)]">
+              No matches for that ticker.
+            </div>
           ) : null}
         </div>
         <div className="hidden items-center gap-2 sm:flex">
@@ -314,6 +395,7 @@ export function DeskApp() {
             focus={selected}
             onSend={send}
             onScan={scan}
+            onClear={clearChat}
             draft={draft}
             setDraft={setDraft}
           />

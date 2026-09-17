@@ -57,6 +57,7 @@ export type ChatMessage = {
   role: ChatRole;
   content: string;
   scan?: ScanResult | null;
+  error?: boolean;
 };
 
 export type ScanResult = {

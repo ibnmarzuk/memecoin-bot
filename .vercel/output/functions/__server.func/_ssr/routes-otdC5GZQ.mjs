@@ -2,12 +2,12 @@ import { i as __toESM } from "../_runtime.mjs";
 import { a as require_react, i as require_jsx_runtime, n as useQuery, t as useMutation } from "../_libs/react+tanstack__react-query.mjs";
 import { n as TSS_SERVER_FUNCTION, r as getServerFnById, t as createServerFn } from "./ssr.mjs";
 import { c as toSnap, i as heatScore, n as formatPct, o as riskFromCoin, r as formatUsd, s as shortAddress, t as formatAge } from "./format-DuQl3DE9.mjs";
-import { a as MessageSquare, c as Coins, d as Activity, i as ScanLine, l as Bookmark, o as ExternalLink, r as Search, s as Copy, t as X, u as ArrowUp } from "../_libs/lucide-react.mjs";
+import { a as ScanLine, c as Copy, d as ArrowUp, f as Activity, i as Search, l as Coins, o as MessageSquare, r as Trash2, s as ExternalLink, t as X, u as Bookmark } from "../_libs/lucide-react.mjs";
 import { n as toast } from "../_libs/sonner.mjs";
 import { n as create, t as persist } from "../_libs/zustand.mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-Bm0zm6tp.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-otdC5GZQ.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var createSsrRpc = (functionId) => {
@@ -209,7 +209,7 @@ function RadarPanel({ coins, loading, error, onRetry, onPick }) {
 				children: [
 					["all", "Vol"],
 					["heat", "Heat"],
-					["watch", "Desk"]
+					["watch", "Pins"]
 				].map(([key, label]) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 					type: "button",
 					onClick: () => setFilter(key),
@@ -236,7 +236,7 @@ function RadarPanel({ coins, loading, error, onRetry, onPick }) {
 				})]
 			}) : rows.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 				className: "px-4 py-10 text-center text-sm text-muted-foreground",
-				children: filter === "watch" ? "Nothing pinned yet." : "No coins on the tape."
+				children: filter === "watch" ? "Pin a coin from the tape." : "No coins on the tape."
 			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 				className: "space-y-1",
 				children: rows.map(({ coin, heat }, i) => {
@@ -355,7 +355,7 @@ function ScanCard({ scan }) {
 		]
 	});
 }
-function ChatPanel({ messages, pending, focus, onSend, onScan, draft, setDraft }) {
+function ChatPanel({ messages, pending, focus, onSend, onScan, onClear, draft, setDraft }) {
 	const bottom = (0, import_react.useRef)(null);
 	const input = (0, import_react.useRef)(null);
 	(0, import_react.useEffect)(() => {
@@ -369,7 +369,7 @@ function ChatPanel({ messages, pending, focus, onSend, onScan, draft, setDraft }
 		if (!focus) return STARTERS;
 		return [
 			`What's the read on ${focus.symbol}?`,
-			`Is ${focus.symbol} a narrative trade or a ghost?`,
+			`Scan ${focus.symbol}`,
 			...STARTERS.slice(0, 2)
 		];
 	}, [focus]);
@@ -389,18 +389,27 @@ function ChatPanel({ messages, pending, focus, onSend, onScan, draft, setDraft }
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 		className: "flex h-full min-h-0 flex-col bg-background",
 		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("header", {
-				className: "flex items-center justify-between px-5 py-3",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					className: "text-xs font-medium tracking-[0.18em] text-muted-foreground",
-					children: "DESK"
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					className: "text-sm",
-					children: focus ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: ["Talking ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "font-medium",
-						children: focus.symbol
-					})] }) : "Ask FREN about the tape"
-				})] })
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
+				className: "flex items-center justify-between gap-3 px-5 py-3",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "min-w-0",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "text-xs font-medium tracking-[0.18em] text-muted-foreground",
+						children: "DESK"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "truncate text-sm",
+						children: focus ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: ["Talking ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							className: "font-medium",
+							children: focus.symbol
+						})] }) : "Ask FREN about the tape"
+					})]
+				}), messages.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+					variant: "ghost",
+					size: "sm",
+					onClick: onClear,
+					"aria-label": "Clear thread",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, {}), "Clear"]
+				}) : null]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 				className: "scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6",
@@ -413,7 +422,7 @@ function ChatPanel({ messages, pending, focus, onSend, onScan, draft, setDraft }
 							children: "The desk is open."
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "mt-3 max-w-md text-sm leading-normal text-muted-foreground",
-							children: "FREN reads live meme-coin tape and talks like a skeptical wire desk — never a tipster. Pin a coin, or just ask."
+							children: "FREN reads live meme-coin tape and talks like a skeptical wire desk — never a tipster. Pin a coin, type Scan DOGE, or just ask."
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 						className: "flex flex-wrap gap-2",
@@ -432,12 +441,15 @@ function ChatPanel({ messages, pending, focus, onSend, onScan, draft, setDraft }
 							children: m.role === "user" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 								className: "rounded-xl rounded-br-sm bg-secondary px-4 py-3 text-sm leading-normal",
 								children: m.content
+							}) : m.error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "text-sm leading-normal text-down",
+								children: m.content
 							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "space-y-3",
-								children: [m.scan ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScanCard, { scan: m.scan }) : null, m.scan ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								children: [m.scan ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScanCard, { scan: m.scan }) : null, m.scan ? m.content && m.content !== m.scan.verdict ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 									className: "text-sm leading-normal text-muted-foreground",
 									children: m.content
-								}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								}) : null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 									className: "whitespace-pre-wrap text-sm leading-normal",
 									children: m.content
 								})]
@@ -463,7 +475,7 @@ function ChatPanel({ messages, pending, focus, onSend, onScan, draft, setDraft }
 							onChange: (e) => setDraft(e.target.value),
 							onKeyDown: onKey,
 							rows: 1,
-							placeholder: focus ? `Ask about ${focus.symbol}…` : "Ask the desk…",
+							placeholder: focus ? `Ask about ${focus.symbol}…` : "Ask the desk or Scan DOGE",
 							className: "max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm leading-normal text-foreground outline-none placeholder:text-muted-foreground"
 						}),
 						focus ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
@@ -731,7 +743,8 @@ function loadChat() {
 		const raw = localStorage.getItem(CHAT_KEY);
 		if (!raw) return [];
 		const parsed = JSON.parse(raw);
-		return Array.isArray(parsed) ? parsed.slice(-40) : [];
+		if (!Array.isArray(parsed)) return [];
+		return parsed.filter((m) => !m.error && !/^Desk error\b/.test(m.content) && m.content !== "The desk line dropped. Try again." && m.content !== "Scan failed. Try again.").slice(-40);
 	} catch {
 		return [];
 	}
@@ -748,6 +761,7 @@ function DeskApp() {
 	const [draft, setDraft] = (0, import_react.useState)("");
 	const [query, setQuery] = (0, import_react.useState)("");
 	const [hits, setHits] = (0, import_react.useState)([]);
+	const [searching, setSearching] = (0, import_react.useState)(false);
 	const [extra, setExtra] = (0, import_react.useState)([]);
 	const hydrated = (0, import_react.useRef)(/* @__PURE__ */ new Set());
 	const [mounted, setMounted] = (0, import_react.useState)(false);
@@ -782,7 +796,10 @@ function DeskApp() {
 			chainId: coin.chainId,
 			tokenAddress: coin.tokenAddress ?? void 0
 		} }).then((res) => {
-			if (!res.coin) return;
+			if (!res.coin) {
+				hydrated.current.delete(selectedId);
+				return;
+			}
 			setExtra((prev) => {
 				return [...prev.filter((c) => c.id !== res.coin.id), {
 					...coin,
@@ -797,8 +814,10 @@ function DeskApp() {
 		const q = query.trim();
 		if (q.length < 2) {
 			setHits([]);
+			setSearching(false);
 			return;
 		}
+		setSearching(true);
 		const t = window.setTimeout(() => {
 			searchMarket({ data: { q } }).then((res) => {
 				setHits(res.coins);
@@ -807,7 +826,7 @@ function DeskApp() {
 					for (const c of res.coins) map.set(c.id, c);
 					return [...map.values()];
 				});
-			}).catch(() => setHits([]));
+			}).catch(() => setHits([])).finally(() => setSearching(false));
 		}, 350);
 		return () => window.clearTimeout(t);
 	}, [query]);
@@ -849,6 +868,11 @@ function DeskApp() {
 	async function send(text) {
 		const trimmed = text.trim();
 		if (!trimmed || pending) return;
+		const scanMatch = trimmed.match(/^\s*(?:scan|read)\s+\$?([A-Za-z0-9]{2,15})\s*[.!?]*$/i);
+		if (scanMatch?.[1]) {
+			await scanSymbol(scanMatch[1], trimmed);
+			return;
+		}
 		const userMsg = {
 			id: uid(),
 			role: "user",
@@ -861,23 +885,28 @@ function DeskApp() {
 			setMessages((m) => [...m, {
 				id: uid(),
 				role: "assistant",
-				content: res.ok ? res.text : res.error
+				content: res.ok ? res.text : res.error,
+				error: !res.ok
 			}]);
 		} catch {
 			setMessages((m) => [...m, {
 				id: uid(),
 				role: "assistant",
-				content: "The desk line dropped. Try again."
+				content: "The desk line dropped. Try again.",
+				error: true
 			}]);
 		}
 	}
-	async function scan() {
-		if (!selected || pending) return;
-		const coin = selected;
+	async function runScan(coin, prompt) {
+		select(coin.id);
+		setExtra((prev) => {
+			if (prev.some((c) => c.id === coin.id)) return prev;
+			return [...prev, coin];
+		});
 		setMessages((m) => [...m, {
 			id: uid(),
 			role: "user",
-			content: `Scan ${coin.symbol}`
+			content: prompt
 		}]);
 		setTab("desk");
 		try {
@@ -886,15 +915,63 @@ function DeskApp() {
 				id: uid(),
 				role: "assistant",
 				content: res.ok ? res.text : res.error,
-				scan: res.ok ? res.scan ?? null : null
+				scan: res.ok ? res.scan ?? null : null,
+				error: !res.ok
 			}]);
 		} catch {
 			setMessages((m) => [...m, {
 				id: uid(),
 				role: "assistant",
-				content: "Scan failed. Try again."
+				content: "Scan failed. Try again.",
+				error: true
 			}]);
 		}
+	}
+	async function scanSymbol(symbol, prompt) {
+		const sym = symbol.toUpperCase();
+		const matches = coins.filter((c) => c.symbol.toUpperCase() === sym);
+		let coin = matches.find((c) => c.source === "listed") ?? matches[0] ?? null;
+		if (!coin) try {
+			const res = await searchMarket({ data: { q: symbol } });
+			const found = res.coins.filter((c) => c.symbol.toUpperCase() === sym);
+			coin = found.find((c) => c.source === "listed") ?? found[0] ?? res.coins[0] ?? null;
+			if (coin) setExtra((prev) => {
+				const map = new Map(prev.map((c) => [c.id, c]));
+				map.set(coin.id, coin);
+				return [...map.values()];
+			});
+		} catch {
+			coin = null;
+		}
+		if (!coin) {
+			setMessages((m) => [
+				...m,
+				{
+					id: uid(),
+					role: "user",
+					content: prompt
+				},
+				{
+					id: uid(),
+					role: "assistant",
+					content: `No tape on ${sym}. Search the ticker or paste a contract.`,
+					error: true
+				}
+			]);
+			setTab("desk");
+			return;
+		}
+		await runScan(coin, prompt);
+	}
+	async function scan() {
+		if (!selected || pending) return;
+		await runScan(selected, `Scan ${selected.symbol}`);
+	}
+	function clearChat() {
+		setMessages([]);
+		try {
+			localStorage.removeItem(CHAT_KEY);
+		} catch {}
 	}
 	const tabs = [
 		{
@@ -986,6 +1063,9 @@ function DeskApp() {
 										})
 									]
 								}) }, c.id))
+							}) : query.trim().length >= 2 && !searching ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "absolute z-30 mt-2 w-full rounded-xl bg-popover px-3 py-3 text-sm text-muted-foreground shadow-[var(--shadow-border)]",
+								children: "No matches for that ticker."
 							}) : null
 						]
 					}),
@@ -1023,6 +1103,7 @@ function DeskApp() {
 							focus: selected,
 							onSend: send,
 							onScan: scan,
+							onClear: clearChat,
 							draft,
 							setDraft
 						})

@@ -337,7 +337,7 @@ async function loadRadar(): Promise<RadarResponse> {
   const dexP = fetchDexRadar().catch(() => [] as Coin[]);
   const listedP = fetchListedRadar().catch(() => [] as Coin[]);
   const dex = await dexP;
-  const listedWait = dex.length >= 8 ? 2000 : 8000;
+  const listedWait = dex.length >= 8 ? 4500 : 8000;
   const listed = await Promise.race([
     listedP,
     new Promise<Coin[]>((resolve) => setTimeout(() => resolve([]), listedWait)),

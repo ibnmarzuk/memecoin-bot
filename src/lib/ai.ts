@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { ChatResponse, CoinSnap, ScanResult } from "@/lib/types";
 import { formatPct, formatUsd } from "@/lib/format";
+import { localChat, localScan } from "@/lib/desk-analyst";
 
 const MODEL = "grok-4.5";
 const MAX_HISTORY = 8;
@@ -23,6 +24,9 @@ let windowStart = 0;
 let windowCount = 0;
 const WINDOW_MS = 60_000;
 const WINDOW_CAP = 20;
+let apiBlockedUntil = 0;
+
+const scanCache = new Map<string, { at: number; result: ChatResponse }>();
 
 function rateLimit(): string | null {
   const now = Date.now();
@@ -53,38 +57,71 @@ function snapLine(s: CoinSnap): string {
   return parts.join(" · ");
 }
 
+function cacheKey(focus: CoinSnap): string {
+  return [
+    focus.id,
+    Math.round(focus.priceUsd * 1e8),
+    Math.round(focus.changeH24 ?? 0),
+    Math.round(focus.volume24h),
+  ].join(":");
+}
+
 async function grok(messages: GrokMsg[], maxTokens: number): Promise<ChatResponse> {
   const apiKey = process.env.XAI_API_KEY;
-  if (!apiKey) return { ok: false, error: "AI is not available in this environment." };
+  if (!apiKey) return { ok: false, error: "local" };
+  if (Date.now() < apiBlockedUntil) return { ok: false, error: "local" };
 
   const limited = rateLimit();
   if (limited) return { ok: false, error: limited };
 
-  const res = await fetch("https://api.x.ai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      temperature: 0.55,
-      max_tokens: maxTokens,
-      messages,
-    }),
-    signal: AbortSignal.timeout(45_000),
-  });
-
-  if (!res.ok) {
-    return { ok: false, error: `Desk error ${res.status}. Try again.` };
-  }
-
-  const body = (await res.json()) as {
-    choices?: { message?: { content?: string } }[];
+  const payload = {
+    model: MODEL,
+    temperature: 0.55,
+    max_tokens: maxTokens,
+    messages,
   };
-  const text = body.choices?.[0]?.message?.content?.trim() ?? "";
-  if (!text) return { ok: false, error: "The desk went quiet. Try again." };
-  return { ok: true, text };
+
+  const attempt = async (): Promise<ChatResponse> => {
+    const res = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    if (!res.ok) {
+      await res.text().catch(() => "");
+      if (res.status === 401 || res.status === 403) {
+        apiBlockedUntil = Date.now() + 15 * 60_000;
+        return { ok: false, error: "local" };
+      }
+      return { ok: false, error: `Desk error ${res.status}` };
+    }
+
+    const body = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const text = body.choices?.[0]?.message?.content?.trim() ?? "";
+    if (!text) return { ok: false, error: "local" };
+    return { ok: true, text };
+  };
+
+  try {
+    const first = await attempt();
+    if (first.ok) return first;
+    if (first.error === "local") return first;
+    if (first.error?.includes("429") || first.error?.includes("50")) {
+      await new Promise((r) => setTimeout(r, 600));
+      const retry = await attempt();
+      if (retry.ok || retry.error === "local") return retry;
+    }
+    return { ok: false, error: "local" };
+  } catch {
+    return { ok: false, error: "local" };
+  }
 }
 
 function parseScan(text: string): ScanResult | null {
@@ -139,6 +176,12 @@ export const chatDesk = createServerFn({ method: "POST" })
       return { ok: false, error: "Ask the desk something first." };
     }
 
+    const lastUser = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    const fallback = (): ChatResponse => ({
+      ok: true,
+      text: localChat(lastUser, data.snapshot, data.focus),
+    });
+
     const context: string[] = [];
     if (data.focus) context.push(`Pinned coin:\n${snapLine(data.focus)}`);
     if (data.snapshot.length) {
@@ -155,7 +198,9 @@ export const chatDesk = createServerFn({ method: "POST" })
       ...data.messages.map((m) => ({ role: m.role, content: m.content })),
     ];
 
-    return grok(messages, 700);
+    const result = await grok(messages, 700);
+    if (result.ok) return result;
+    return fallback();
   });
 
 export const scanDesk = createServerFn({ method: "POST" })
@@ -164,6 +209,15 @@ export const scanDesk = createServerFn({ method: "POST" })
     extra: input.extra ? String(input.extra).slice(0, 1200) : null,
   }))
   .handler(async ({ data }): Promise<ChatResponse> => {
+    const key = cacheKey(data.focus);
+    const hit = scanCache.get(key);
+    if (hit && Date.now() - hit.at < 120_000) return hit.result;
+
+    const fallbackScan = (): ChatResponse => {
+      const scan = localScan(data.focus);
+      return { ok: true, text: scan.verdict, scan };
+    };
+
     const messages: GrokMsg[] = [
       { role: "system", content: SYSTEM },
       {
@@ -183,21 +237,14 @@ ${data.extra ? `\nNotes:\n${data.extra}` : ""}`,
       },
     ];
     const result = await grok(messages, 650);
-    if (!result.ok) return result;
-    const scan = parseScan(result.text);
-    if (!scan) {
-      return {
-        ok: true,
-        text: result.text,
-        scan: {
-          verdict: result.text.slice(0, 220),
-          narrative: result.text,
-          risk: "unknown",
-          flags: [],
-          tape: "Could not parse a structured tape read.",
-          watch: "Ask a follow-up.",
-        },
-      };
+    if (!result.ok) {
+      const local = fallbackScan();
+      scanCache.set(key, { at: Date.now(), result: local });
+      return local;
     }
-    return { ok: true, text: scan.verdict, scan };
+    const parsed = parseScan(result.text);
+    const scan = parsed ?? localScan(data.focus);
+    const out: ChatResponse = { ok: true, text: scan.verdict, scan };
+    scanCache.set(key, { at: Date.now(), result: out });
+    return out;
   });

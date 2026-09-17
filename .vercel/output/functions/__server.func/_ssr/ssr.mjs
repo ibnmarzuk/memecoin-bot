@@ -88,7 +88,7 @@ var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 * the dev styles URL for route-scoped CSS collection.
 */
 async function getStartManifest(matchedRoutes) {
-	const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-CDFtdkj_.mjs");
+	const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BjdE5ad4.mjs");
 	const startManifest = tsrStartManifest();
 	let routes = startManifest.routes;
 	routes[rootRouteId];
@@ -110,23 +110,23 @@ async function getStartManifest(matchedRoutes) {
 var manifest = {
 	"0a7cc0de19883550f6fa813f930a4faad3d92a5b281b7f88ec4cbf0dbcaa9af2": {
 		functionName: "searchMarket_createServerFn_handler",
-		importer: () => import("./market-DmdjlHVD.mjs")
+		importer: () => import("./market-CrFqJgnF.mjs")
 	},
 	"3e4da6416916b692642028d6cb7bb1fa007a7dbcbeebc52f8232f4078a28e26f": {
 		functionName: "hydrateCoin_createServerFn_handler",
-		importer: () => import("./market-DmdjlHVD.mjs")
+		importer: () => import("./market-CrFqJgnF.mjs")
 	},
 	"75576047554d5634ba7813f52f579b4c6cb0db5e15fc648a3e1a673db09c3c13": {
 		functionName: "chatDesk_createServerFn_handler",
-		importer: () => import("./ai-fT55Bu69.mjs")
+		importer: () => import("./ai-DQZB0Vp8.mjs")
 	},
 	"a529dd505c7d89ed0070e523e8993d8c31dbd33c0837e1ec0acef082b375f161": {
 		functionName: "getRadar_createServerFn_handler",
-		importer: () => import("./market-DmdjlHVD.mjs")
+		importer: () => import("./market-CrFqJgnF.mjs")
 	},
 	"fa837041f2a2bbbd57e52a15440d58d3c6ef19be53614f8bdb1b39834c2a0e67": {
 		functionName: "scanDesk_createServerFn_handler",
-		importer: () => import("./ai-fT55Bu69.mjs")
+		importer: () => import("./ai-DQZB0Vp8.mjs")
 	}
 };
 async function getServerFnById(id, access) {
@@ -1396,7 +1396,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
 	const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-		import("./router-FVLhYvQN.mjs").then((n) => n.t),
+		import("./router-COensd2_.mjs").then((n) => n.t),
 		import("./start-5Z2QO8AU.mjs"),
 		import("./empty-plugin-adapters-D9UWiqvJ.mjs")
 	]);

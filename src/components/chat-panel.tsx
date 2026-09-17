@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, type FormEvent, type KeyboardEvent } from "react";
-import { ArrowUp, ScanLine } from "lucide-react";
+import { ArrowUp, ScanLine, Trash2 } from "lucide-react";
 import type { ChatMessage, Coin, ScanResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +57,7 @@ export function ChatPanel({
   focus,
   onSend,
   onScan,
+  onClear,
   draft,
   setDraft,
 }: {
@@ -65,6 +66,7 @@ export function ChatPanel({
   focus: Coin | null;
   onSend: (text: string) => void;
   onScan: () => void;
+  onClear: () => void;
   draft: string;
   setDraft: (v: string) => void;
 }) {
@@ -81,7 +83,7 @@ export function ChatPanel({
     if (!focus) return STARTERS;
     return [
       `What's the read on ${focus.symbol}?`,
-      `Is ${focus.symbol} a narrative trade or a ghost?`,
+      `Scan ${focus.symbol}`,
       ...STARTERS.slice(0, 2),
     ];
   }, [focus]);
@@ -103,10 +105,10 @@ export function ChatPanel({
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-background">
-      <header className="flex items-center justify-between px-5 py-3">
-        <div>
+      <header className="flex items-center justify-between gap-3 px-5 py-3">
+        <div className="min-w-0">
           <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground">DESK</p>
-          <p className="text-sm">
+          <p className="truncate text-sm">
             {focus ? (
               <>
                 Talking <span className="font-medium">{focus.symbol}</span>
@@ -116,6 +118,12 @@ export function ChatPanel({
             )}
           </p>
         </div>
+        {messages.length > 0 ? (
+          <Button variant="ghost" size="sm" onClick={onClear} aria-label="Clear thread">
+            <Trash2 />
+            Clear
+          </Button>
+        ) : null}
       </header>
 
       <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
@@ -127,7 +135,7 @@ export function ChatPanel({
               </h2>
               <p className="mt-3 max-w-md text-sm leading-normal text-muted-foreground">
                 FREN reads live meme-coin tape and talks like a skeptical wire desk — never a
-                tipster. Pin a coin, or just ask.
+                tipster. Pin a coin, type Scan DOGE, or just ask.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -157,11 +165,15 @@ export function ChatPanel({
                   <div className="rounded-xl rounded-br-sm bg-secondary px-4 py-3 text-sm leading-normal">
                     {m.content}
                   </div>
+                ) : m.error ? (
+                  <p className="text-sm leading-normal text-down">{m.content}</p>
                 ) : (
                   <div className="space-y-3">
                     {m.scan ? <ScanCard scan={m.scan} /> : null}
                     {m.scan ? (
-                      <p className="text-sm leading-normal text-muted-foreground">{m.content}</p>
+                      m.content && m.content !== m.scan.verdict ? (
+                        <p className="text-sm leading-normal text-muted-foreground">{m.content}</p>
+                      ) : null
                     ) : (
                       <p className="whitespace-pre-wrap text-sm leading-normal">{m.content}</p>
                     )}
@@ -188,7 +200,7 @@ export function ChatPanel({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKey}
             rows={1}
-            placeholder={focus ? `Ask about ${focus.symbol}…` : "Ask the desk…"}
+            placeholder={focus ? `Ask about ${focus.symbol}…` : "Ask the desk or Scan DOGE"}
             className="max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm leading-normal text-foreground outline-none placeholder:text-muted-foreground"
           />
           {focus ? (

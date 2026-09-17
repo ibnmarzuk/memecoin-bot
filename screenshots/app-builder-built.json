@@ -7,9 +7,9 @@
       "status": 200,
       "title": "FREN",
       "hasCanvas": false,
-      "bodyTextLen": 2055,
-      "bodyTextHash": "c11225d56752a9c6f3dca6f2b0c1640132916b440de3169d60eb730ccb004f46",
-      "bodyTextPrefix": "FREN DESK Live PAIDDOGE $0.000802 +540% PAIDLON $0.000170 +128% ",
+      "bodyTextLen": 440,
+      "bodyTextHash": "dff5341022e63067207683f25a63000763a1e92d5bb7b9756a6990e4661586b8",
+      "bodyTextPrefix": "FREN DESK Live TAPE Live meme radar Vol Heat Pins DESK Ask FREN ",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -21,9 +21,9 @@
       "status": 200,
       "title": "FREN",
       "hasCanvas": false,
-      "bodyTextLen": 1082,
-      "bodyTextHash": "2bfacdc2f0c063050d8bcf78466614114695ff9c1cc540fff192ebc7a69e24da",
-      "bodyTextPrefix": "FREN PAIDDOGE $0.000802 +540% PAIDLON $0.000170 +128% FOMOPAD $2",
+      "bodyTextLen": 1096,
+      "bodyTextHash": "b5b0ddb442e2b610cd7c2c4be3dfc79c84f6d6a81b650efa5a17c0e060a130c0",
+      "bodyTextPrefix": "FREN PAIDDOGE $0.000977 +678% PAIDLON $2.45e-6 −96.72% FOMOPAD $",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -35,7 +35,7 @@
   "verdictFile": "/workspace/screenshots/app-builder-built.json",
   "divergesFromBaseline": true,
   "baselineReasons": [
-    "desktop: body text replaced (similar length, page start changed)",
+    "desktop: body text collapsed (2053 -> 440 chars)",
     "mobile: body text replaced (similar length, page start changed)"
   ]
 }
